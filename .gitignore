@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# Environment Variables (Secrets)
+.env
+
+# Editor
+.vscode/
+.idea/
+
+# Database (if trying to exclude local data, though postgres is external)
+*.log
