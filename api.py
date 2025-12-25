@@ -169,4 +169,15 @@ async def enrich_topics(topic_id: int):
     conn.close()
 
     return {"message": "Books Found!", "books": saved_books}
+
+@app.get("/topics/{topic_id}/books")
+def read_books(topic_id: int):
+    conn = db.get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM books WHERE topic_id = %s", (topic_id,))
+    books = cur.fetchall()
+    cur.close()
+    conn.close()
+    
+    return [{"id": b[0], "title": b[1], "author": b[2]} for b in books]
             
