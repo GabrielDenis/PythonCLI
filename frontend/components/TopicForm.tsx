@@ -1,13 +1,16 @@
 'use client';
+
+import { API_URL } from '../config';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+
 export default function TopicForm() {
     const [name, setName] = useState('');
     const router = useRouter();
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!name) return;
-        await fetch('http://127.0.0.1:8000/topics', {
+        await fetch(`${API_URL}/topics`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

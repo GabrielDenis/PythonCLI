@@ -24,7 +24,12 @@ def startup_event():
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost",
+        "https://gabrieldenis.com",
+        "https://www.gabrieldenis.com"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

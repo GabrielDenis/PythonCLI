@@ -1,15 +1,20 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import styles from './TopicList.module.css';
-async function getTopics() {
-    const res = await fetch('http://127.0.0.1:8000/topics', {
-        cache: 'no-store'
-    });
-    if (!res.ok) {
-        throw new Error('Failed to fetch data');
-    }
-    return res.json();
-}
-export default async function TopicList() {
-    const topics = await getTopics();
+import { API_URL } from '../config';
+
+export default function TopicList() {
+    const [topics, setTopics] = useState<any[]>([]);
+
+    useEffect(() => {
+        // Fetch data when the component loads in the browser
+        fetch(`${API_URL}/topics`)
+            .then(res => res.json())
+            .then(data => setTopics(data))
+            .catch(err => console.error("Error fetching topics:", err));
+    }, []);
+
     return (
         <div className={styles.grid}>
             {topics.map((topic: any) => (
