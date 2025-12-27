@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
@@ -12,6 +13,22 @@ from os import getenv
 
 load_dotenv()
 app = FastAPI()
+
+@app.on_event("startup")
+def startup_event():
+    try:
+        db.run_migrations()
+        print("Database migrations run successfully!")
+    except Exception as e:
+        print(f"Error running migrations: {e}")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 SECRET_KEY = getenv("SECRET_KEY")
 ALGORITHM = getenv("ALGORITHM")
@@ -181,3 +198,14 @@ def read_books(topic_id: int):
     
     return [{"id": b[0], "title": b[1], "author": b[2]} for b in books]
             
+
+@app.delete("/books/{book_id}")
+def delete_book(book_id: int):
+    conn = db.get_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM books WHERE id = %s", (book_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return {"message": "Book deleted successfully"}

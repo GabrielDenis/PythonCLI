@@ -1,11 +1,17 @@
 import psycopg
+import os
 
 def get_connection():
+    # Production (Render)
+    if os.getenv("DATABASE_URL"):
+        return psycopg.connect(os.getenv("DATABASE_URL"))
+    
+    # Local Development
     return psycopg.connect(
         dbname="learning_tracker",
         user="postgres",
         password="1234", 
-        host="localhost"
+        host=os.getenv("DB_HOST", "localhost")
     )
 
 def run_migrations():

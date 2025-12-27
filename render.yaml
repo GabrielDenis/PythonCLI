@@ -1,0 +1,24 @@
+services:
+  # 1. The API Service (Python)
+  - type: web
+    name: learning-tracker-api
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn api:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORITHM
+        value: HS256
+      - key: DATABASE_URL
+        fromDatabase:
+          name: learning-tracker-db
+          property: connectionString
+
+databases:
+  # 2. The Database (PostgreSQL)
+  - name: learning-tracker-db
+    databaseName: learning_tracker
+    user: admin
