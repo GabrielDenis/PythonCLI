@@ -2,11 +2,14 @@
 
 import { API_URL } from '../config';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 
-export default function TopicForm() {
+interface TopicFormProps {
+    onTopicAdded: () => void;
+}
+
+export default function TopicForm({ onTopicAdded }: TopicFormProps) {
     const [name, setName] = useState('');
-    const router = useRouter();
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!name) return;
@@ -18,7 +21,7 @@ export default function TopicForm() {
             body: JSON.stringify({ name }),
         });
         setName('');
-        router.refresh();
+        onTopicAdded(); // 👈 Avisamos al padre que actualice la lista
     };
     return (
         <form onSubmit={handleSubmit} style={{ marginBottom: '2rem', display: 'flex', gap: '1rem' }}>
