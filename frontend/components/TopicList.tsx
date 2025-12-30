@@ -23,6 +23,14 @@ export default function TopicList({ topics, onRefresh }: TopicListProps) {
         onRefresh();
     };
 
+    const enrichTopic = async (topicId: number) => {
+        const btn = document.getElementById(`enrich-btn-${topicId}`) as HTMLButtonElement;
+        if (btn) { btn.disabled = true; btn.innerText = "Searching..."; }
+
+        await fetch(`${API_URL}/topics/${topicId}/enrich`, { method: 'POST' });
+        onRefresh();
+    };
+
     return (
         <div className={styles.grid}>
             {topics.map((topic: any) => (
@@ -54,7 +62,24 @@ export default function TopicList({ topics, onRefresh }: TopicListProps) {
                                 </div>
                             ))
                         ) : (
-                            <p style={{ fontSize: '0.8rem', color: '#666' }}>No books explored yet.</p>
+                            <div style={{ textAlign: 'center', marginTop: '10px' }}>
+                                <p style={{ fontSize: '0.8rem', color: '#666', marginBottom: '10px' }}>No books explored yet.</p>
+                                <button
+                                    id={`enrich-btn-${topic.id}`}
+                                    onClick={() => enrichTopic(topic.id)}
+                                    style={{
+                                        padding: '0.5rem 1rem',
+                                        background: 'var(--primary)',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        color: 'white',
+                                        cursor: 'pointer',
+                                        fontSize: '0.9rem'
+                                    }}
+                                >
+                                    🔍 Find Suggestions
+                                </button>
+                            </div>
                         )}
                     </div>
                 </div>
