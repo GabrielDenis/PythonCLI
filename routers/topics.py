@@ -104,6 +104,31 @@ def mark_done(topic_name: str):
 
     return {"message": "Topic marked as done successfully"}
 
+@router.delete("/{topic_id}")
+def delete_topic(topic_id: int):
+    conn = db.get_connection()
+    cur = conn.cursor()
+    
+    # Check if topic exists
+    cur.execute("SELECT id FROM topics WHERE id = %s", (topic_id,))
+    if not cur.fetchone():
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Topic not found")
+
+    # Delete topic (Books will be deleted automatically due to CASCADE)
+    cur.execute("DELETE FROM topics WHERE id = %s", (topic_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    try:
+        cache.r.delete("all_topics")
+    except:
+        pass
+
+    return {"message": "Topic deleted successfully"}
+
 @router.post("/{topic_id}/enrich")
 async def enrich_topics(topic_id: int):
     conn = db.get_connection()
@@ -141,7 +166,7 @@ async def enrich_topics(topic_id: int):
 
     return {"message": "Books Found!", "books": saved_books}
 
-@router.get("/{topic_id}/books", response_model=List[schemas.Book]) # Keeps the old endpoint just in case
+@router.get("/{topic_id}/books", response_model=List[schemas.Book])
 def read_books(topic_id: int):
     conn = db.get_connection()
     cur = conn.cursor()
@@ -150,4 +175,27 @@ def read_books(topic_id: int):
     cur.close()
     conn.close()
     
-    return [{"title": b[1], "author": b[2]} for b in books] # Schema matches Book(title, author)
+    return [{"title": b[1], "author": b[2]} for b in books]
+
+@router.post("/{topic_id}/books")
+def create_book(topic_id: int, book: schemas.Book):
+    conn = db.get_connection()
+    cur = conn.cursor()
+    # Verify topic exists
+    cur.execute("SELECT id FROM topics WHERE id = %s", (topic_id,))
+    if not cur.fetchone():
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Topic not found")
+        
+    cur.execute("INSERT INTO books (title, author, topic_id, status) VALUES (%s, %s, %s, 'unread')", (book.title, book.author, topic_id))
+    conn.commit()
+    cur.close()
+    conn.close()
+    
+    try:
+        cache.r.delete("all_topics")
+    except:
+        pass
+
+    return {"message": "Book added successfully"}

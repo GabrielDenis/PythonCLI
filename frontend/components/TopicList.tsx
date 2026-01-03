@@ -1,5 +1,6 @@
 import styles from './TopicList.module.css';
 import { API_URL } from '../config';
+import BookList from './BookList';
 
 interface TopicListProps {
     topics: any[];
@@ -23,6 +24,12 @@ export default function TopicList({ topics, onRefresh }: TopicListProps) {
         onRefresh();
     };
 
+    const deleteTopic = async (topicId: number) => {
+        if (!confirm('Are you sure you want to delete this topic? All books inside it will be lost.')) return;
+        await fetch(`${API_URL}/topics/${topicId}`, { method: 'DELETE' });
+        onRefresh();
+    };
+
     const enrichTopic = async (topicId: number) => {
         const btn = document.getElementById(`enrich-btn-${topicId}`) as HTMLButtonElement;
         if (btn) { btn.disabled = true; btn.innerText = "Searching..."; }
@@ -35,53 +42,25 @@ export default function TopicList({ topics, onRefresh }: TopicListProps) {
         <div className={styles.grid}>
             {topics.map((topic: any) => (
                 <div key={topic.id} className={styles.card}>
-                    <span className={styles.id}>#{topic.id}</span>
-                    <h2>{topic.name}</h2>
-
-                    <div className={styles.bookList}>
-                        {topic.books && topic.books.length > 0 ? (
-                            topic.books.map((book: any) => (
-                                <div key={book.id} className={styles.bookItem}>
-                                    <input
-                                        type="checkbox"
-                                        checked={book.status === 'read'}
-                                        onChange={() => toggleBookStatus(book.id, book.status || 'unread')}
-                                    />
-                                    <span style={{
-                                        textDecoration: book.status === 'read' ? 'line-through' : 'none',
-                                        color: book.status === 'read' ? '#666' : '#fff'
-                                    }}>
-                                        {book.title}
-                                    </span>
-                                    <button
-                                        onClick={() => deleteBook(book.id)}
-                                        style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#ff4444' }}
-                                    >
-                                        ×
-                                    </button>
-                                </div>
-                            ))
-                        ) : (
-                            <div style={{ textAlign: 'center', marginTop: '10px' }}>
-                                <p style={{ fontSize: '0.8rem', color: '#666', marginBottom: '10px' }}>No books explored yet.</p>
-                                <button
-                                    id={`enrich-btn-${topic.id}`}
-                                    onClick={() => enrichTopic(topic.id)}
-                                    style={{
-                                        padding: '0.5rem 1rem',
-                                        background: 'var(--primary)',
-                                        border: 'none',
-                                        borderRadius: '4px',
-                                        color: 'white',
-                                        cursor: 'pointer',
-                                        fontSize: '0.9rem'
-                                    }}
-                                >
-                                    🔍 Find Suggestions
-                                </button>
-                            </div>
-                        )}
+                    <div className={styles.cardHeader}>
+                        <span className={styles.id}>#{topic.id}</span>
+                        <h2>{topic.name}</h2>
+                        <button
+                            className={styles.deleteTopicBtn}
+                            onClick={() => deleteTopic(topic.id)}
+                            title="Delete Topic"
+                        >
+                            🗑️
+                        </button>
                     </div>
+
+                    <BookList
+                        books={topic.books}
+                        topicId={topic.id}
+                        onToggleStatus={toggleBookStatus}
+                        onDelete={deleteBook}
+                        onEnrich={enrichTopic}
+                    />
                 </div>
             ))}
         </div>

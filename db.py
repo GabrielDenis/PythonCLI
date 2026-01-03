@@ -7,6 +7,7 @@ def get_connection():
         return psycopg.connect(os.getenv("DATABASE_URL"))
     
     # Local Development
+    print(f"Connecting to DB: learning_tracker on {os.getenv('DB_HOST', 'localhost')}")
     return psycopg.connect(
         dbname="learning_tracker",
         user="postgres",
@@ -27,9 +28,19 @@ def run_migrations():
     try:
         cursor.execute("ALTER TABLE books ADD COLUMN status VARCHAR(50) DEFAULT 'unread'")
     except Exception as e:
-        # If column already exists, ignore the error
         conn.rollback()
         pass
+
+    conn.commit()
+
+    # ---------------------------------------------------------
+    # MIGRATION: Add 'status' column to topics if it doesn't exist
+    # ---------------------------------------------------------
+    try:
+        cursor.execute("ALTER TABLE topics ADD COLUMN status VARCHAR(50) DEFAULT 'active'")
+    except Exception as e:
+        print(f"Migration error (topics status): {e}")
+        conn.rollback()
 
     conn.commit()
     cursor.close()

@@ -32,26 +32,36 @@
 }
 
 .id {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
   font-size: 0.8rem;
   color: #666;
+  margin-right: auto;
 }
 
-.bookList {
-  margin-top: 1rem;
+.cardHeader {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.bookItem {
-  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
-  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  position: relative;
+}
+
+.cardHeader h2 {
+  margin: 0;
+  flex: 1;
+  text-align: center;
+}
+
+.deleteTopicBtn {
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+  padding: 0 5px;
+}
+
+.deleteTopicBtn:hover {
+  opacity: 1;
+  transform: scale(1.1);
 }
